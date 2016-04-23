@@ -26,12 +26,14 @@ namespace ArduinoControl
         Timer t1;
         Timer t2;
         List<string> a;
+        Reading red;
         public MainWindow()
         {
             InitializeComponent();
             p1 = new SerialPort("COM3");
             p1.Open();
 
+            red = new Reading();
             a = new List<string>();
 
             t1 = new Timer();
@@ -53,6 +55,7 @@ namespace ArduinoControl
             string read = p1.ReadExisting();
             if (read != " "&&read!="")
             {
+                read = read.Split('\r')[0];
                 //textBox.Text = read;
                 //listBox.Items.Add(read);
                 a.Add(read);
@@ -61,12 +64,16 @@ namespace ArduinoControl
         }
         private void timerX2(Object stateInfo, EventArgs e)
         {
-            string obj = a[0];
-            a.RemoveAt(0);
-
-            if (obj != null && obj != "")
+            if (a.Count > 0)
             {
+                string obj = a[0];
+                a.RemoveAt(0);
 
+                if (obj != null && obj != "")
+                {
+                    int code = red.returnType(obj);
+                    listBox.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, new Action(delegate () { listBox.Items.Add(red.returnMessage(code)); }));
+                }
             }
         }
         
